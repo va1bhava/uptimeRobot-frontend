@@ -488,11 +488,12 @@
         const res = await fetch(`${API}/uptimerobot/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',                          // ← receive HttpOnly cookie
           body: JSON.stringify({ email, password })
         });
-        const token = await res.text();
-        if (!res.ok) throw new Error(token || 'Invalid credentials');
-        localStorage.setItem('ur_token', token);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Invalid credentials');
+        localStorage.setItem('ur_token', data.token);     // ← access token in memory
         localStorage.setItem('ur_email', email);
         showSuccess('login-success', 'Success! Redirecting...');
         setTimeout(() => window.location.href = 'dashboard.html', 800);
@@ -601,6 +602,7 @@
         const res = await fetch(`${API}/uptimerobot/auth/verify-otp`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',                          // ← receive HttpOnly cookie
           body: JSON.stringify({ email: pendingEmail, otp })
         });
         if (!res.ok) {

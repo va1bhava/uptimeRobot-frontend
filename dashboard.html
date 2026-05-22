@@ -401,18 +401,16 @@
 
 <script>
 const API = 'https://uptimerobot-xvf5.onrender.com';
-const token = localStorage.getItem('ur_token');
 const email = localStorage.getItem('ur_email');
 
 // Handle OAuth redirect: if we're coming back with ?token=xxx in URL
 const params = new URLSearchParams(window.location.search);
 if (params.has('token')) {
   localStorage.setItem('ur_token', params.get('token'));
-  // clean URL
   window.history.replaceState({}, '', 'dashboard.html');
 }
 
-if (!token && !params.has('token')) {
+if (!localStorage.getItem('ur_token') && !params.has('token')) {
   window.location.href = 'index.html';
 }
 
@@ -429,14 +427,70 @@ function pushHistory(urlId, rt, status) {
   localStorage.setItem('ur_hist_' + urlId, JSON.stringify(hist));
 }
 
-// --- API calls ---
+// --- API calls with auto-refresh ---
+let accessToken = localStorage.getItem('ur_token');
+let isRefreshing = false;
+
 async function apiFetch(path, opts = {}) {
-  const res = await fetch(API + path, {
+  let res = await fetch(API + path, {
     ...opts,
-    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', ...(opts.headers || {}) }
+    credentials: 'include',       // always send cookie (needed for refresh flow)
+    headers: {
+      'Authorization': 'Bearer ' + accessToken,
+      'Content-Type': 'application/json',
+      ...(opts.headers || {})
+    }
   });
-  if (res.status === 401 || res.status === 403) { logout(); return null; }
+
+  // If 401 — try refreshing once before giving up
+  if (res.status === 401 && !isRefreshing) {
+    isRefreshing = true;
+    const refreshed = await tryRefresh();
+    isRefreshing = false;
+
+    if (refreshed) {
+      // Got a new access token — retry original request
+      res = await fetch(API + path, {
+        ...opts,
+        credentials: 'include',
+        headers: {
+          'Authorization': 'Bearer ' + accessToken,
+          'Content-Type': 'application/json',
+          ...(opts.headers || {})
+        }
+      });
+    } else {
+      // Refresh failed — session truly dead, force login
+      forceLogout();
+      return null;
+    }
+  }
+
   return res;
+}
+
+// Hit /refresh endpoint — cookie is sent automatically by browser
+async function tryRefresh() {
+  try {
+    const res = await fetch(`${API}/uptimerobot/auth/refresh`, {
+      method: 'POST',
+      credentials: 'include'      // browser sends HttpOnly cookie automatically
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    accessToken = data.token;                         // update in-memory token
+    localStorage.setItem('ur_token', data.token);    // persist for page reloads
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Logout — kills session in Redis + clears cookie + redirects
+async function forceLogout() {
+  localStorage.removeItem('ur_token');
+  localStorage.removeItem('ur_email');
+  window.location.href = 'index.html';
 }
 
 // --- Render ---
@@ -664,7 +718,14 @@ async function deleteUrl(e, urlId) {
   }
 }
 
-function logout() {
+async function logout() {
+  try {
+    await fetch(`${API}/uptimerobot/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Authorization': 'Bearer ' + accessToken }
+    });
+  } catch (e) { /* still clear local state even if call fails */ }
   localStorage.removeItem('ur_token');
   localStorage.removeItem('ur_email');
   window.location.href = 'index.html';

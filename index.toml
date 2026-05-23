@@ -1,0 +1,17 @@
+[[redirects]]
+  from = "/uptimerobot/*"
+  to = "https://uptimerobot-xvf5.onrender.com/uptimerobot/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/oauth2/*"
+  to = "https://uptimerobot-xvf5.onrender.com/oauth2/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/login/oauth2/*"
+  to = "https://uptimerobot-xvf5.onrender.com/login/oauth2/:splat"
+  status = 200
+  force = true

@@ -1,3 +1,7 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
 [[redirects]]
   from = "/uptimerobot/*"
   to = "https://uptimerobot-xvf5.onrender.com/uptimerobot/:splat"

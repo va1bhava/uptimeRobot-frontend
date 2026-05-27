@@ -50,7 +50,7 @@ export default function LandingApp() {
     { id: 2, type: 'success', text: 'Redis cache connected (session store).' },
     { id: 3, type: 'info', text: '20-thread scheduler pool booted.' }
   ]);
-  const terminalEndRef = useRef(null);
+  const terminalBodyRef = useRef(null);
 
   // Fetch stats from backend
   const fetchStats = async () => {
@@ -138,10 +138,10 @@ export default function LandingApp() {
     return () => clearInterval(interval);
   }, []);
 
-  // Auto scroll terminal logs
+  // Auto scroll terminal logs inside the terminal container
   useEffect(() => {
-    if (terminalEndRef.current) {
-      terminalEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (terminalBodyRef.current) {
+      terminalBodyRef.current.scrollTop = terminalBodyRef.current.scrollHeight;
     }
   }, [terminalLogs]);
 
@@ -220,7 +220,7 @@ export default function LandingApp() {
                 </div>
                 <div className="terminal-title">uptimerobotd@live.ping</div>
               </div>
-              <div className="terminal-body">
+              <div className="terminal-body" ref={terminalBodyRef}>
                 {terminalLogs.map(log => (
                   <div key={log.id} className="terminal-line">
                     {log.time && <span className="term-time">[{log.time}]</span>}
@@ -238,7 +238,6 @@ export default function LandingApp() {
                   <span className="term-prefix">$</span>
                   <span className="term-cursor"></span>
                 </div>
-                <div ref={terminalEndRef} />
               </div>
             </div>
           </div>

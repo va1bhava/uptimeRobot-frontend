@@ -20,7 +20,7 @@ export default function Sparkline({ history = [], urlId }) {
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
     const W = canvas.offsetWidth;
-    const H = 80;
+    const H = 90;
     
     canvas.width = W * dpr;
     canvas.height = H * dpr;
@@ -30,9 +30,9 @@ export default function Sparkline({ history = [], urlId }) {
     
     if (data.length < 2) {
       ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = 'rgba(74,74,106,0.4)';
+      ctx.fillStyle = '#6b7280';
       ctx.font = '11px JetBrains Mono, monospace';
-      ctx.fillText('Not enough data yet — check back after a few cycles', 0, H / 2);
+      ctx.fillText('Not enough latency data collected yet.', 20, H / 2);
       chartDataRef.current = { pts: [], data: [] };
       return;
     }
@@ -42,7 +42,7 @@ export default function Sparkline({ history = [], urlId }) {
     const max = Math.max(...vals);
     const range = max - min || 1;
 
-    const pad = { t: 10, b: 10, l: 0, r: 0 };
+    const pad = { t: 15, b: 15, l: 0, r: 0 };
     const plotW = W - pad.l - pad.r;
     const plotH = H - pad.t - pad.b;
 
@@ -55,7 +55,7 @@ export default function Sparkline({ history = [], urlId }) {
 
     let animationFrameId;
     let frame = 0;
-    const totalFrames = 45;
+    const totalFrames = 40;
 
     function drawFrame(frameProgress) {
       ctx.clearRect(0, 0, W, H);
@@ -65,7 +65,7 @@ export default function Sparkline({ history = [], urlId }) {
       const activePts = pts.slice(0, pointCount);
 
       // Grid lines
-      ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)';
       ctx.lineWidth = 1;
       for (let i = 0; i < 4; i++) {
         const gy = pad.t + (plotH / 3) * i;
@@ -77,8 +77,8 @@ export default function Sparkline({ history = [], urlId }) {
 
       // Area fill
       const grad = ctx.createLinearGradient(0, pad.t, 0, H - pad.b);
-      grad.addColorStop(0, 'rgba(0,229,160,0.15)');
-      grad.addColorStop(1, 'rgba(0,229,160,0)');
+      grad.addColorStop(0, 'rgba(6, 182, 212, 0.15)');
+      grad.addColorStop(1, 'rgba(6, 182, 212, 0)');
       ctx.beginPath();
       ctx.moveTo(activePts[0].x, H - pad.b);
       activePts.forEach(p => ctx.lineTo(p.x, p.y));
@@ -90,8 +90,8 @@ export default function Sparkline({ history = [], urlId }) {
       // Line
       ctx.beginPath();
       activePts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
-      ctx.strokeStyle = '#00e5a0';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#06b6d4';
+      ctx.lineWidth = 1.75;
       ctx.lineJoin = 'round';
       ctx.lineCap = 'round';
       ctx.stroke();
@@ -100,11 +100,11 @@ export default function Sparkline({ history = [], urlId }) {
       const last = activePts[activePts.length - 1];
       ctx.beginPath();
       ctx.arc(last.x, last.y, 6, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(0,229,160,0.15)';
+      ctx.fillStyle = 'rgba(6, 182, 212, 0.2)';
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(last.x, last.y, 3.5, 0, Math.PI * 2);
-      ctx.fillStyle = '#00e5a0';
+      ctx.arc(last.x, last.y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = '#06b6d4';
       ctx.fill();
     }
 
@@ -152,18 +152,18 @@ export default function Sparkline({ history = [], urlId }) {
     if (closestDist < 30 && data[closestIndex]) {
       const pt = pts[closestIndex];
       const d = data[closestIndex];
-      tooltip.innerHTML = `<div class="tt-value">${d.rt}ms</div><div class="tt-time">${formatTime(d.t)}</div>`;
-      tooltip.style.left = (pt.x - 30) + 'px';
-      tooltip.style.top = (pt.y - 45) + 'px';
-      tooltip.classList.add('visible');
+      tooltip.innerHTML = `<div style="font-weight: 700; color: #06b6d4;">${d.rt}ms</div><div style="font-size: 9px; color: #9ca3af; margin-top: 2px;">${formatTime(d.t)}</div>`;
+      tooltip.style.left = (pt.x - 35) + 'px';
+      tooltip.style.top = (pt.y - 48) + 'px';
+      tooltip.style.display = 'block';
     } else {
-      tooltip.classList.remove('visible');
+      tooltip.style.display = 'none';
     }
   };
 
   const handleMouseLeave = () => {
     if (tooltipRef.current) {
-      tooltipRef.current.classList.remove('visible');
+      tooltipRef.current.style.display = 'none';
     }
   };
 
@@ -171,20 +171,26 @@ export default function Sparkline({ history = [], urlId }) {
   const histLast = history.length > 0 ? formatTime(history[history.length - 1].t) : '';
 
   return (
-    <div className="chart-section-inner">
-      <div className="chart-title">
-        Response Time (ms) — last {Math.min(history.filter(h => h.rt > 0).length, 20)} readings
+    <div style={{ padding: '4px 0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <span style={{ fontSize: '11px', fontFamily: 'JetBrains Mono, monospace', color: '#9ca3af' }}>
+          Response Latency History (ms)
+        </span>
+        <span style={{ fontSize: '10px', fontFamily: 'JetBrains Mono, monospace', color: '#6b7280' }}>
+          Last {Math.min(history.filter(h => h.rt > 0).length, 20)} check cycles
+        </span>
       </div>
       <div 
         className="sparkline-container" 
         ref={containerRef}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
+        style={{ position: 'relative' }}
       >
-        <canvas className="sparkline" ref={canvasRef}></canvas>
-        <div className="chart-tooltip" ref={tooltipRef}></div>
+        <canvas ref={canvasRef} style={{ width: '100%', height: '90px', display: 'block' }}></canvas>
+        <div className="sparkline-tooltip" ref={tooltipRef}></div>
       </div>
-      <div className="chart-labels">
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', fontSize: '9px', fontFamily: 'JetBrains Mono, monospace', color: '#4b5563' }}>
         <span>{histFirst}</span>
         <span>{histLast}</span>
       </div>

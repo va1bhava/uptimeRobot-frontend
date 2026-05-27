@@ -366,11 +366,9 @@ export default function LoginApp() {
         onMouseLeave={handleMouseLeave}
       >
         <div className="logo">
-          <div className="logo-icon">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 2.18L18.36 7.5 12 10.82 5.64 7.5 12 4.18zM5 9.06l6 3.32v6.34l-6-3.32V9.06zm8 9.66V12.38l6-3.32v6.34l-6 3.32z"/>
-            </svg>
-          </div>
+          <svg className="logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
           <div className="logo-text">Uptime<span>Robot</span></div>
         </div>
 

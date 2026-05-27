@@ -71,6 +71,22 @@ export default function LandingApp() {
   };
 
   useEffect(() => {
+    // Check URL params for OAuth redirect or existing token
+    const urlParams = new URLSearchParams(window.location.search);
+    const oauthToken = urlParams.get('token');
+    const oauthEmail = urlParams.get('email') || '';
+
+    if (oauthToken) {
+      localStorage.setItem('ur_token', oauthToken);
+      localStorage.setItem('ur_email', oauthEmail);
+      window.history.replaceState({}, '', 'index.html');
+      window.location.href = 'dashboard.html';
+      return;
+    } else if (localStorage.getItem('ur_token')) {
+      window.location.href = 'dashboard.html';
+      return;
+    }
+
     document.body.className = 'landing-body';
     fetchStats();
     const statsInterval = setInterval(fetchStats, 60000);

@@ -61,22 +61,7 @@ export default function LoginApp() {
         window.location.href = 'dashboard.html';
       }, 1200);
     } else if (localStorage.getItem('ur_token')) {
-      // Auto-login check
-      fetch(`${API}/uptimerobot/monitors`, {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('ur_token') }
-      })
-      .then(res => {
-        if (res.ok) {
-          window.location.href = 'dashboard.html';
-        } else {
-          localStorage.removeItem('ur_token');
-          localStorage.removeItem('ur_email');
-        }
-      })
-      .catch(() => {
-        localStorage.removeItem('ur_token');
-        localStorage.removeItem('ur_email');
-      });
+      window.location.href = 'dashboard.html';
     }
 
     return () => {
@@ -141,12 +126,17 @@ export default function LoginApp() {
         body: JSON.stringify({ email: loginEmail.trim(), password: loginPassword })
       });
       
-      const data = await res.json();
+      const token = await res.text();
       if (!res.ok) {
-        throw new Error(data.error || 'Invalid credentials');
+        let errorMsg = token;
+        try {
+          const parsed = JSON.parse(token);
+          errorMsg = parsed.error || parsed.message || token;
+        } catch {}
+        throw new Error(errorMsg || 'Invalid credentials');
       }
 
-      localStorage.setItem('ur_token', data.token);
+      localStorage.setItem('ur_token', token);
       localStorage.setItem('ur_email', loginEmail.trim());
       
       setSuccessMsg(prev => ({ ...prev, login: 'Success! Redirecting...' }));

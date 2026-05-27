@@ -1,1116 +1,358 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>UptimeRobot — Sign In</title>
-  <meta name="description" content="Monitor your websites and APIs with UptimeRobot. Sign in or create an account to get started."/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg: #06060e;
-      --surface: rgba(12, 12, 24, 0.55);
-      --surface-solid: #0c0c18;
-      --border: rgba(255, 255, 255, 0.06);
-      --border-hover: rgba(255, 255, 255, 0.12);
-      --accent: #00e5a0;
-      --accent-dim: rgba(0, 229, 160, 0.15);
-      --accent2: #9b6dff;
-      --accent2-dim: rgba(155, 109, 255, 0.15);
-      --accent3: #00d4ff;
-      --text: #e8eaf0;
-      --text-secondary: #a0a0b8;
-      --muted: #4a4a6a;
-      --error: #ff6b8a;
-      --error-dim: rgba(255, 107, 138, 0.12);
-      --radius: 16px;
-      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
-      --ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);
-    }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: 'Inter', -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      position: relative;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* ===== ANIMATED BACKGROUND ===== */
-    .bg-grid {
-      position: fixed; inset: 0; z-index: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
-      background-size: 52px 52px;
-      mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 30%, transparent 100%);
-      -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 30%, transparent 100%);
-    }
-
-    .orb {
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(100px);
-      pointer-events: none;
-      z-index: 0;
-      will-change: transform;
-    }
-    .orb-1 {
-      width: 550px; height: 550px;
-      background: radial-gradient(circle, rgba(0,229,160,0.12) 0%, transparent 70%);
-      top: -180px; left: -120px;
-      animation: orbFloat1 22s ease-in-out infinite;
-    }
-    .orb-2 {
-      width: 450px; height: 450px;
-      background: radial-gradient(circle, rgba(155,109,255,0.10) 0%, transparent 70%);
-      bottom: -150px; right: -100px;
-      animation: orbFloat2 26s ease-in-out infinite;
-    }
-    .orb-3 {
-      width: 350px; height: 350px;
-      background: radial-gradient(circle, rgba(0,212,255,0.07) 0%, transparent 70%);
-      top: 50%; left: 60%;
-      animation: orbFloat3 20s ease-in-out infinite;
-    }
-    .orb-4 {
-      width: 250px; height: 250px;
-      background: radial-gradient(circle, rgba(255,107,138,0.06) 0%, transparent 70%);
-      top: 30%; left: 20%;
-      animation: orbFloat4 18s ease-in-out infinite;
-    }
-
-    @keyframes orbFloat1 {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(60px, 40px) scale(1.1); }
-      66% { transform: translate(-30px, 70px) scale(0.95); }
-    }
-    @keyframes orbFloat2 {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(-50px, -60px) scale(1.08); }
-      66% { transform: translate(40px, -30px) scale(0.92); }
-    }
-    @keyframes orbFloat3 {
-      0%, 100% { transform: translate(0, 0); }
-      50% { transform: translate(-80px, 50px); }
-    }
-    @keyframes orbFloat4 {
-      0%, 100% { transform: translate(0, 0); }
-      50% { transform: translate(50px, -40px); }
-    }
-
-    /* Noise texture overlay */
-    .noise {
-      position: fixed; inset: 0; z-index: 0;
-      opacity: 0.025;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      pointer-events: none;
-    }
-
-    /* ===== AUTH CARD ===== */
-    .auth-card {
-      position: relative;
-      z-index: 10;
-      width: 440px;
-      max-width: calc(100vw - 32px);
-      background: var(--surface);
-      backdrop-filter: blur(24px) saturate(1.4);
-      -webkit-backdrop-filter: blur(24px) saturate(1.4);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 44px 40px 36px;
-      box-shadow:
-        0 0 0 1px rgba(0,229,160,0.03),
-        0 40px 100px -20px rgba(0,0,0,0.6),
-        inset 0 1px 0 rgba(255,255,255,0.04);
-      animation: cardEntrance 0.7s var(--ease-spring) both;
-      transition: transform 0.1s ease, box-shadow 0.3s ease;
-      will-change: transform;
-    }
-    /* Gradient border glow on hover */
-    .auth-card::before {
-      content: '';
-      position: absolute;
-      inset: -1px;
-      border-radius: 25px;
-      padding: 1px;
-      background: linear-gradient(135deg, rgba(0,229,160,0.25), rgba(155,109,255,0.2), rgba(0,212,255,0.2));
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      opacity: 0;
-      transition: opacity 0.5s;
-      pointer-events: none;
-    }
-    .auth-card:hover::before { opacity: 1; }
-
-    @keyframes cardEntrance {
-      0% { opacity: 0; transform: translateY(40px) scale(0.96); filter: blur(4px); }
-      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-    }
-
-    /* ===== LOGO ===== */
-    .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
-    .logo-icon {
-      width: 40px; height: 40px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      position: relative;
-      overflow: hidden;
-      animation: logoPulse 3s ease-in-out infinite;
-    }
-    .logo-icon svg {
-      width: 22px; height: 22px;
-      fill: white;
-      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
-    }
-    .logo-icon::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%);
-      animation: logoShimmer 3s ease-in-out infinite;
-    }
-    @keyframes logoPulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(0,229,160,0.3); }
-      50% { box-shadow: 0 0 20px 4px rgba(0,229,160,0.15); }
-    }
-    @keyframes logoShimmer {
-      0%, 100% { transform: translateX(-100%); }
-      50% { transform: translateX(100%); }
-    }
-    .logo-text {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-    }
-    .logo-text span {
-      background: linear-gradient(135deg, var(--accent), var(--accent3));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    /* ===== TABS ===== */
-    .tabs {
-      position: relative;
-      display: flex;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 4px;
-      margin-bottom: 28px;
-    }
-    .tab-indicator {
-      position: absolute;
-      top: 4px;
-      left: 4px;
-      width: calc(50% - 4px);
-      height: calc(100% - 8px);
-      background: rgba(255,255,255,0.07);
-      border-radius: 8px;
-      transition: transform 0.45s var(--ease-spring);
-      z-index: 0;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-    }
-    .tabs.register .tab-indicator { transform: translateX(100%); }
-    .tab {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      background: transparent;
-      color: var(--muted);
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: color 0.3s;
-      position: relative;
-      z-index: 1;
-    }
-    .tab.active { color: var(--text); }
-    .tab:hover:not(.active) { color: var(--text-secondary); }
-
-    /* ===== FORM ===== */
-    .form-group {
-      position: relative;
-      margin-bottom: 20px;
-    }
-    .form-label {
-      display: block;
-      font-size: 11px;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--muted);
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-      transition: color 0.3s;
-    }
-    .form-group:focus-within .form-label { color: var(--accent); }
-
-    .input-wrapper {
-      position: relative;
-    }
-    .form-input {
-      width: 100%;
-      padding: 13px 16px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
-    }
-    .form-input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-dim), 0 0 20px -4px rgba(0,229,160,0.15);
-      background: rgba(0,229,160,0.02);
-    }
-    .form-input::placeholder { color: var(--muted); }
-    .form-input.has-icon { padding-right: 44px; }
-
-    /* Typing indicator border */
-    .form-input.typing {
-      border-color: var(--accent2);
-      box-shadow: 0 0 0 3px var(--accent2-dim);
-    }
-
-    /* Password toggle */
-    .pwd-toggle {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: var(--muted);
-      cursor: pointer;
-      padding: 4px;
-      display: flex;
-      align-items: center;
-      transition: color 0.2s;
-      z-index: 2;
-    }
-    .pwd-toggle:hover { color: var(--text); }
-    .pwd-toggle svg { width: 18px; height: 18px; }
-
-    /* ===== BUTTONS ===== */
-    .btn-primary {
-      width: 100%;
-      padding: 14px;
-      margin-top: 8px;
-      background: linear-gradient(135deg, var(--accent), #00c4ff);
-      color: #000;
-      border: none;
-      border-radius: 12px;
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      transition: transform 0.2s var(--ease-spring), box-shadow 0.3s, opacity 0.2s;
-      letter-spacing: 0.3px;
-    }
-    .btn-primary::after {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 60%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-      transition: left 0.6s ease;
-    }
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px -6px rgba(0,229,160,0.35);
-    }
-    .btn-primary:hover::after { left: 150%; }
-    .btn-primary:active { transform: translateY(0) scale(0.98); }
-    .btn-primary:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      transform: none !important;
-      box-shadow: none !important;
-    }
-    .btn-primary:disabled::after { display: none; }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin: 22px 0;
-      color: var(--muted);
-      font-size: 11px;
-      font-family: 'JetBrains Mono', monospace;
-      letter-spacing: 0.5px;
-    }
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--border), transparent);
-    }
-
-    .btn-google {
-      width: 100%;
-      padding: 13px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: all 0.3s;
-      text-decoration: none;
-      position: relative;
-      overflow: hidden;
-    }
-    .btn-google::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(66,133,244,0.08), rgba(234,67,53,0.08), rgba(251,188,5,0.08), rgba(52,168,83,0.08));
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .btn-google:hover { border-color: var(--border-hover); transform: translateY(-1px); }
-    .btn-google:hover::before { opacity: 1; }
-    .btn-google svg { width: 18px; height: 18px; flex-shrink: 0; }
-
-    /* ===== MESSAGES ===== */
-    .msg {
-      border-radius: 10px;
-      padding: 11px 14px;
-      font-size: 13px;
-      margin-top: 14px;
-      display: none;
-      align-items: center;
-      gap: 8px;
-      animation: msgSlideIn 0.35s var(--ease-spring);
-    }
-    .msg.show { display: flex; }
-    .msg-icon { font-size: 15px; flex-shrink: 0; }
-    .msg.error {
-      background: var(--error-dim);
-      border: 1px solid rgba(255,107,138,0.2);
-      color: var(--error);
-    }
-    .msg.success {
-      background: var(--accent-dim);
-      border: 1px solid rgba(0,229,160,0.2);
-      color: var(--accent);
-    }
-    @keyframes msgSlideIn {
-      from { opacity: 0; transform: translateY(-8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ===== SPINNER ===== */
-    .spinner {
-      display: inline-block;
-      width: 15px; height: 15px;
-      border: 2px solid rgba(0,0,0,0.2);
-      border-top-color: #000;
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-      vertical-align: middle;
-      margin-right: 6px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ===== PANELS ===== */
-    .panel { display: none; }
-    .panel.active {
-      display: block;
-      animation: panelFade 0.4s var(--ease-spring);
-    }
-    @keyframes panelFade {
-      from { opacity: 0; transform: translateX(12px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    /* ===== OTP STEP ===== */
-    .otp-step { display: none; }
-    .otp-step.active { display: block; animation: otpSlide 0.4s var(--ease-spring); }
-
-    @keyframes otpSlide {
-      from { opacity: 0; transform: translateX(20px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    .otp-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 22px;
-    }
-    .back-btn {
-      width: 34px; height: 34px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.03);
-      color: var(--muted);
-      font-size: 16px;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.25s;
-    }
-    .back-btn:hover {
-      border-color: var(--accent);
-      color: var(--text);
-      background: var(--accent-dim);
-    }
-    .otp-title {
-      font-family: 'Inter', sans-serif;
-      font-size: 15px;
-      font-weight: 600;
-    }
-    .otp-email {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: var(--accent);
-      margin-left: auto;
-      max-width: 160px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .otp-info {
-      text-align: center;
-      font-size: 13px;
-      color: var(--text-secondary);
-      margin-bottom: 20px;
-      line-height: 1.6;
-    }
-    .otp-info strong {
-      color: var(--text);
-      font-weight: 600;
-    }
-
-    .otp-input-group {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-    .otp-digit {
-      width: 48px;
-      height: 58px;
-      text-align: center;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 22px;
-      font-weight: 500;
-      border-radius: 14px;
-      padding: 0;
-      caret-color: var(--accent);
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border);
-      color: var(--text);
-      outline: none;
-      transition: all 0.25s var(--ease-spring);
-    }
-    .otp-digit:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-dim);
-      transform: scale(1.05);
-      background: rgba(0,229,160,0.03);
-    }
-    .otp-digit.filled {
-      border-color: var(--accent);
-      background: var(--accent-dim);
-    }
-    .otp-digit.shake {
-      animation: otpShake 0.4s ease;
-    }
-    @keyframes otpShake {
-      0%, 100% { transform: translateX(0); }
-      20% { transform: translateX(-6px); }
-      40% { transform: translateX(6px); }
-      60% { transform: translateX(-4px); }
-      80% { transform: translateX(4px); }
-    }
-
-    .resend-link {
-      background: none;
-      border: none;
-      color: var(--accent2);
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: color 0.2s;
-      margin-top: 10px;
-      display: block;
-      text-align: center;
-      position: relative;
-    }
-    .resend-link::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 1px;
-      background: var(--accent2);
-      transition: width 0.3s;
-    }
-    .resend-link:hover { color: var(--accent); }
-    .resend-link:hover::after { width: 80%; background: var(--accent); }
-    .resend-link:disabled {
-      color: var(--muted);
-      cursor: not-allowed;
-    }
-    .resend-link:disabled::after { display: none; }
-
-    /* ===== SUCCESS OVERLAY ===== */
-    .success-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--bg);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s;
-    }
-    .success-overlay.active {
-      opacity: 1;
-      pointer-events: all;
-    }
-    .success-overlay .checkmark {
-      width: 80px; height: 80px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent3));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transform: scale(0);
-      animation: checkPop 0.5s 0.1s var(--ease-spring) forwards;
-    }
-    .success-overlay .checkmark svg {
-      width: 36px; height: 36px;
-      stroke: #000;
-      stroke-width: 3;
-      fill: none;
-      stroke-dasharray: 50;
-      stroke-dashoffset: 50;
-      animation: checkDraw 0.4s 0.4s ease forwards;
-    }
-    @keyframes checkPop {
-      to { transform: scale(1); }
-    }
-    @keyframes checkDraw {
-      to { stroke-dashoffset: 0; }
-    }
-    .success-overlay .ripple {
-      position: absolute;
-      width: 80px; height: 80px;
-      border-radius: 50%;
-      border: 2px solid var(--accent);
-      animation: rippleExpand 0.8s 0.3s ease-out forwards;
-      opacity: 0;
-    }
-    @keyframes rippleExpand {
-      0% { opacity: 0.6; transform: scale(1); }
-      100% { opacity: 0; transform: scale(6); }
-    }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 480px) {
-      .auth-card {
-        padding: 32px 24px 28px;
-        border-radius: 20px;
-      }
-      .otp-digit { width: 42px; height: 52px; font-size: 20px; }
-      .otp-input-group { gap: 7px; }
-      .logo-text { font-size: 18px; }
-    }
-
-    /* Keyboard focus styling */
-    *:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }
-    input:focus-visible { outline: none; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UptimeRobot — Never Miss a Second of Downtime</title>
+    <meta name="description" content="Open-source uptime monitoring backend built with Spring Boot 4 & Java 21. Monitor your URLs every 60 seconds, get instant alerts when sites go down or recover.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <!-- Background layers -->
-  <div class="bg-grid"></div>
-  <div class="noise"></div>
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-  <div class="orb orb-4"></div>
-
-  <!-- Success redirect overlay -->
-  <div class="success-overlay" id="success-overlay">
-    <div class="ripple"></div>
-    <div class="checkmark">
-      <svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"/></svg>
-    </div>
-  </div>
-
-  <!-- Auth Card -->
-  <div class="auth-card" id="auth-card">
-    <div class="logo">
-      <div class="logo-icon">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 2.18L18.36 7.5 12 10.82 5.64 7.5 12 4.18zM5 9.06l6 3.32v6.34l-6-3.32V9.06zm8 9.66V12.38l6-3.32v6.34l-6 3.32z"/>
-        </svg>
-      </div>
-      <div class="logo-text">Uptime<span>Robot</span></div>
-    </div>
-
-    <div class="tabs" id="tabs-container">
-      <div class="tab-indicator"></div>
-      <button class="tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
-      <button class="tab" id="tab-register" onclick="switchTab('register')">Register</button>
-    </div>
-
-    <!-- LOGIN PANEL -->
-    <div class="panel active" id="panel-login">
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <div class="input-wrapper">
-          <input type="email" class="form-input" id="login-email" placeholder="you@example.com" autocomplete="email" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <div class="input-wrapper">
-          <input type="password" class="form-input has-icon" id="login-password" placeholder="••••••••" autocomplete="current-password" />
-          <button class="pwd-toggle" type="button" onclick="togglePassword('login-password', this)" tabindex="-1">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-      <button class="btn-primary" id="btn-login" onclick="doLogin()">Sign In</button>
-      <div class="divider">or</div>
-      <a class="btn-google" id="btn-google-login" href="https://uptimerobot-xvf5.onrender.com/oauth2/authorization/google">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-        </svg>
-        Continue with Google
-      </a>
-      <div class="msg error" id="login-error"><span class="msg-icon">✕</span><span id="login-error-text"></span></div>
-      <div class="msg success" id="login-success"><span class="msg-icon">✓</span><span id="login-success-text"></span></div>
-    </div>
-
-    <!-- REGISTER PANEL -->
-    <div class="panel" id="panel-register">
-      <!-- Step 1: Email + Password -->
-      <div class="otp-step active" id="reg-step1">
-        <div class="form-group">
-          <label class="form-label">Email</label>
-          <div class="input-wrapper">
-            <input type="email" class="form-input" id="reg-email" placeholder="you@example.com" autocomplete="email" />
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Password</label>
-          <div class="input-wrapper">
-            <input type="password" class="form-input has-icon" id="reg-password" placeholder="Min 6 characters" autocomplete="new-password" />
-            <button class="pwd-toggle" type="button" onclick="togglePassword('reg-password', this)" tabindex="-1">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <span class="logo-icon">🤖</span>
+                <span class="logo-text">UptimeRobot</span>
+            </a>
+            <div class="nav-links" id="nav-links">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#how-it-works" class="nav-link">How It Works</a>
+                <a href="#tech-stack" class="nav-link">Tech Stack</a>
+                <a href="#api" class="nav-link">API</a>
+                <a href="login.html" class="nav-cta">Open Dashboard →</a>
+            </div>
+            <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
             </button>
-          </div>
         </div>
-        <button class="btn-primary" id="btn-send-otp" onclick="doSendOtp()">Send OTP</button>
-        <div class="divider">or</div>
-        <a class="btn-google" id="btn-google-register" href="https://uptimerobot-xvf5.onrender.com/oauth2/authorization/google">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-          </svg>
-          Continue with Google
-        </a>
-      </div>
+    </nav>
 
-      <!-- Step 2: OTP Verification -->
-      <div class="otp-step" id="reg-step2">
-        <div class="otp-header">
-          <button class="back-btn" onclick="goBackToStep1()" title="Go back">←</button>
-          <span class="otp-title">Verify Email</span>
-          <span class="otp-email" id="otp-display-email"></span>
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-glow"></div>
+        <div class="hero-grid-bg"></div>
+        <div class="hero-content">
+            <div class="hero-badge fade-in">
+                <span class="pulse-dot"></span>
+                Monitoring in real-time
+            </div>
+            <h1 class="hero-title fade-in">
+                Never miss a<br>
+                <span class="gradient-text">second of downtime</span>
+            </h1>
+            <p class="hero-subtitle fade-in">
+                Open-source uptime monitoring backend built with Spring Boot 4 & Java 21.
+                Monitor your URLs every 60 seconds. Get instant alerts when sites go down or recover.
+            </p>
+            <div class="hero-actions fade-in">
+                <a href="login.html" class="btn btn-primary">
+                    <span>Get Started Free</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+                <a href="https://github.com/va1bhava" target="_blank" class="btn btn-secondary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    <span>View on GitHub</span>
+                </a>
+            </div>
         </div>
-        <div class="otp-info">Enter the 6-digit code sent to<br/><strong id="otp-sent-email"></strong></div>
-        <div class="otp-input-group" id="otp-inputs">
-          <input type="text" maxlength="1" inputmode="numeric" class="otp-digit" />
-          <input type="text" maxlength="1" inputmode="numeric" class="otp-digit" />
-          <input type="text" maxlength="1" inputmode="numeric" class="otp-digit" />
-          <input type="text" maxlength="1" inputmode="numeric" class="otp-digit" />
-          <input type="text" maxlength="1" inputmode="numeric" class="otp-digit" />
-          <input type="text" maxlength="1" inputmode="numeric" class="otp-digit" />
+
+        <!-- Live Stats Bar -->
+        <div class="stats-bar fade-in" id="stats-bar">
+            <div class="stat-card">
+                <div class="stat-number" id="stat-total">—</div>
+                <div class="stat-label">URLs Monitored</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-card">
+                <div class="stat-number stat-up" id="stat-up">—</div>
+                <div class="stat-label">Currently Up</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-card">
+                <div class="stat-number stat-down" id="stat-down">—</div>
+                <div class="stat-label">Currently Down</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-card">
+                <div class="stat-number stat-interval">60<span class="stat-unit">s</span></div>
+                <div class="stat-label">Ping Interval</div>
+            </div>
         </div>
-        <button class="btn-primary" id="btn-verify-otp" onclick="doVerifyOtp()">Verify & Create Account</button>
-        <button class="resend-link" id="btn-resend" onclick="doResendOtp()">Resend OTP</button>
-      </div>
+    </section>
 
-      <div class="msg error" id="reg-error"><span class="msg-icon">✕</span><span id="reg-error-text"></span></div>
-      <div class="msg success" id="reg-success"><span class="msg-icon">✓</span><span id="reg-success-text"></span></div>
-    </div>
-  </div>
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-container">
+            <div class="section-header fade-in">
+                <span class="section-tag">Features</span>
+                <h2 class="section-title">Everything you need for<br><span class="gradient-text">reliable uptime monitoring</span></h2>
+                <p class="section-subtitle">Built from scratch with production-grade security, real-time alerts, and zero configuration overhead.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card fade-in" id="feature-jwt">
+                    <div class="feature-icon">🔐</div>
+                    <h3 class="feature-title">JWT Authentication</h3>
+                    <p class="feature-desc">Secure stateless authentication with JJWT 0.12.6. Session management via Redis with automatic expiry and refresh token rotation.</p>
+                </div>
+                <div class="feature-card fade-in" id="feature-otp">
+                    <div class="feature-icon">📧</div>
+                    <h3 class="feature-title">Email OTP Verification</h3>
+                    <p class="feature-desc">Every account is verified via email OTP before creation using Brevo API. No fake accounts, no spam — only verified users get alerts.</p>
+                </div>
+                <div class="feature-card fade-in" id="feature-oauth">
+                    <div class="feature-icon">🔑</div>
+                    <h3 class="feature-title">Google OAuth2</h3>
+                    <p class="feature-desc">One-click sign in with Google SSO. Spring OAuth2 Client handles the entire flow — no passwords needed.</p>
+                </div>
+                <div class="feature-card fade-in" id="feature-monitor">
+                    <div class="feature-icon">📡</div>
+                    <h3 class="feature-title">60-Second Monitoring</h3>
+                    <p class="feature-desc">Scheduled pinger hits all monitored URLs every 60 seconds using a 20-thread pool. Response time, status, and timestamps — all tracked.</p>
+                </div>
+                <div class="feature-card fade-in" id="feature-alerts">
+                    <div class="feature-icon">🔔</div>
+                    <h3 class="feature-title">Instant Down/Up Alerts</h3>
+                    <p class="feature-desc">Get an email the moment your site goes down — and another when it recovers. Powered by Brevo's transactional email API.</p>
+                </div>
+                <div class="feature-card featured fade-in" id="feature-self-heal">
+                    <div class="feature-icon">🤖</div>
+                    <h3 class="feature-title">Self-Healing</h3>
+                    <p class="feature-desc">Add your own backend URL as a monitored URL. The scheduler pings it every 60 seconds, keeping your free Render instance warm forever.</p>
+                    <div class="feature-badge">Smart</div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <script>
-    const API = '';
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="section-container">
+            <div class="section-header fade-in">
+                <span class="section-tag">How It Works</span>
+                <h2 class="section-title">Up and running in<br><span class="gradient-text">three simple steps</span></h2>
+            </div>
+            <div class="steps-container">
+                <div class="step fade-in" id="step-1">
+                    <div class="step-number">01</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Create an Account</h3>
+                        <p class="step-desc">Sign up with email + OTP verification or use Google OAuth2 for instant access. Your email is where alerts get delivered.</p>
+                    </div>
+                    <div class="step-visual">
+                        <div class="step-code">
+                            <span class="code-method post">POST</span>
+                            <span class="code-path">/auth/send-otp</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-connector"></div>
+                <div class="step fade-in" id="step-2">
+                    <div class="step-number">02</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Add Your URLs</h3>
+                        <p class="step-desc">Add any URL you want monitored. Each user manages their own list. Add as many as you need — we ping them all.</p>
+                    </div>
+                    <div class="step-visual">
+                        <div class="step-code">
+                            <span class="code-method post">POST</span>
+                            <span class="code-path">/addurl</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-connector"></div>
+                <div class="step fade-in" id="step-3">
+                    <div class="step-number">03</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Get Instant Alerts</h3>
+                        <p class="step-desc">Sit back. Every 60 seconds we ping your URLs. If something goes down — you'll know within a minute via email.</p>
+                    </div>
+                    <div class="step-visual">
+                        <div class="step-code">
+                            <span class="code-method get">GET</span>
+                            <span class="code-path">/geturls</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    /* ===== TAB SWITCHING ===== */
-    function switchTab(tab) {
-      const tabsEl = document.getElementById('tabs-container');
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    <!-- Tech Stack -->
+    <section class="tech-stack" id="tech-stack">
+        <div class="section-container">
+            <div class="section-header fade-in">
+                <span class="section-tag">Tech Stack</span>
+                <h2 class="section-title">Built with<br><span class="gradient-text">production-grade tools</span></h2>
+            </div>
+            <div class="tech-grid fade-in">
+                <div class="tech-badge" id="tech-spring">
+                    <span class="tech-icon">🍃</span>
+                    <div>
+                        <span class="tech-name">Spring Boot</span>
+                        <span class="tech-version">4.0.2</span>
+                    </div>
+                </div>
+                <div class="tech-badge" id="tech-java">
+                    <span class="tech-icon">☕</span>
+                    <div>
+                        <span class="tech-name">Java</span>
+                        <span class="tech-version">21 LTS</span>
+                    </div>
+                </div>
+                <div class="tech-badge" id="tech-postgres">
+                    <span class="tech-icon">🐘</span>
+                    <div>
+                        <span class="tech-name">PostgreSQL</span>
+                        <span class="tech-version">+ JPA</span>
+                    </div>
+                </div>
+                <div class="tech-badge" id="tech-redis">
+                    <span class="tech-icon">⚡</span>
+                    <div>
+                        <span class="tech-name">Redis</span>
+                        <span class="tech-version">Sessions</span>
+                    </div>
+                </div>
+                <div class="tech-badge" id="tech-docker">
+                    <span class="tech-icon">🐳</span>
+                    <div>
+                        <span class="tech-name">Docker</span>
+                        <span class="tech-version">Containerized</span>
+                    </div>
+                </div>
+                <div class="tech-badge" id="tech-brevo">
+                    <span class="tech-icon">📨</span>
+                    <div>
+                        <span class="tech-name">Brevo</span>
+                        <span class="tech-version">Email API</span>
+                    </div>
+                </div>
+                <div class="tech-badge" id="tech-jwt">
+                    <span class="tech-icon">🔒</span>
+                    <div>
+                        <span class="tech-name">JJWT</span>
+                        <span class="tech-version">0.12.6</span>
+                    </div>
+                </div>
+                <div class="tech-badge" id="tech-render">
+                    <span class="tech-icon">☁️</span>
+                    <div>
+                        <span class="tech-name">Render</span>
+                        <span class="tech-version">Deployed</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-      if (tab === 'register') {
-        tabsEl.classList.add('register');
-        document.getElementById('tab-register').classList.add('active');
-        document.getElementById('panel-register').classList.add('active');
-      } else {
-        tabsEl.classList.remove('register');
-        document.getElementById('tab-login').classList.add('active');
-        document.getElementById('panel-login').classList.add('active');
-      }
-      clearMsgs('login-error', 'login-success', 'reg-error', 'reg-success');
-    }
+    <!-- API Preview -->
+    <section class="api-section" id="api">
+        <div class="section-container">
+            <div class="section-header fade-in">
+                <span class="section-tag">API</span>
+                <h2 class="section-title">Clean REST API<br><span class="gradient-text">ready to integrate</span></h2>
+                <p class="section-subtitle">Simple, well-structured endpoints. JWT-secured where it matters, public where it should be.</p>
+            </div>
+            <div class="api-preview fade-in">
+                <div class="api-window">
+                    <div class="api-titlebar">
+                        <div class="api-dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span class="api-filename">API Endpoints</span>
+                    </div>
+                    <div class="api-content">
+                        <div class="api-group">
+                            <div class="api-group-title">Authentication</div>
+                            <div class="api-endpoint">
+                                <span class="method post">POST</span>
+                                <span class="endpoint-path">/uptimerobot/auth/send-otp</span>
+                                <span class="endpoint-auth public">Public</span>
+                            </div>
+                            <div class="api-endpoint">
+                                <span class="method post">POST</span>
+                                <span class="endpoint-path">/uptimerobot/auth/verify-otp</span>
+                                <span class="endpoint-auth public">Public</span>
+                            </div>
+                            <div class="api-endpoint">
+                                <span class="method post">POST</span>
+                                <span class="endpoint-path">/uptimerobot/auth/login</span>
+                                <span class="endpoint-auth public">Public</span>
+                            </div>
+                        </div>
+                        <div class="api-group">
+                            <div class="api-group-title">URL Monitoring</div>
+                            <div class="api-endpoint">
+                                <span class="method post">POST</span>
+                                <span class="endpoint-path">/uptimerobot/addurl</span>
+                                <span class="endpoint-auth secured">JWT 🔒</span>
+                            </div>
+                            <div class="api-endpoint">
+                                <span class="method get">GET</span>
+                                <span class="endpoint-path">/uptimerobot/geturls</span>
+                                <span class="endpoint-auth secured">JWT 🔒</span>
+                            </div>
+                            <div class="api-endpoint">
+                                <span class="method delete">DELETE</span>
+                                <span class="endpoint-path">/uptimerobot/deleteurl/{id}</span>
+                                <span class="endpoint-auth secured">JWT 🔒</span>
+                            </div>
+                        </div>
+                        <div class="api-group">
+                            <div class="api-group-title">Public Stats</div>
+                            <div class="api-endpoint">
+                                <span class="method get">GET</span>
+                                <span class="endpoint-path">/uptimerobot/stats</span>
+                                <span class="endpoint-auth public">Public</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    /* ===== MESSAGES ===== */
-    function showError(id, msg) {
-      const el = document.getElementById(id);
-      document.getElementById(id + '-text').textContent = msg;
-      el.className = 'msg error show';
-    }
-    function showSuccess(id, msg) {
-      const el = document.getElementById(id);
-      document.getElementById(id + '-text').textContent = msg;
-      el.className = 'msg success show';
-    }
-    function clearMsgs(...ids) {
-      ids.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.className = 'msg ' + (id.includes('error') ? 'error' : 'success');
-      });
-    }
+    <!-- CTA Section -->
+    <section class="cta-section" id="cta">
+        <div class="section-container">
+            <div class="cta-card fade-in">
+                <div class="cta-glow"></div>
+                <h2 class="cta-title">Ready to monitor your uptime?</h2>
+                <p class="cta-subtitle">Start monitoring your websites in under a minute. Free, open-source, and self-hostable.</p>
+                <div class="cta-actions">
+                    <a href="login.html" class="btn btn-primary btn-lg">
+                        <span>Start Monitoring →</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    /* ===== PASSWORD TOGGLE ===== */
-    function togglePassword(inputId, btn) {
-      const input = document.getElementById(inputId);
-      const isPassword = input.type === 'password';
-      input.type = isPassword ? 'text' : 'password';
-      btn.innerHTML = isPassword
-        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
-        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
-    }
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <span class="logo-icon">🤖</span>
+                    <span class="logo-text">UptimeRobot</span>
+                </div>
+                <p class="footer-tagline">Open-source uptime monitoring built with Spring Boot 4 & Java 21</p>
+            </div>
+            <div class="footer-bottom">
+                <p class="footer-credit">Built by <a href="https://github.com/va1bhava" target="_blank">Vaibhava</a></p>
+                <p class="footer-copy">MIT License — feel free to use, modify and build on top.</p>
+            </div>
+        </div>
+    </footer>
 
-    /* ===== SUCCESS OVERLAY ===== */
-    function showSuccessOverlay(callback) {
-      const overlay = document.getElementById('success-overlay');
-      overlay.classList.add('active');
-      setTimeout(callback, 1200);
-    }
-
-    /* ===== LOGIN ===== */
-    async function doLogin() {
-      clearMsgs('login-error', 'login-success');
-      const email = document.getElementById('login-email').value.trim();
-      const password = document.getElementById('login-password').value;
-      if (!email || !password) return showError('login-error', 'Please fill in all fields.');
-
-      const btn = document.getElementById('btn-login');
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span>Signing in...';
-
-      try {
-        const res = await fetch(`${API}/uptimerobot/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ email, password })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Invalid credentials');
-        localStorage.setItem('ur_token', data.token);
-        localStorage.setItem('ur_email', email);
-        showSuccess('login-success', 'Success! Redirecting...');
-        showSuccessOverlay(() => window.location.href = 'dashboard.html');
-      } catch (e) {
-        showError('login-error', e.message);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Sign In';
-      }
-    }
-
-    /* ===== REGISTRATION: 2-STEP OTP FLOW ===== */
-    let pendingEmail = '';
-    let pendingPassword = '';
-
-    function goBackToStep1() {
-      document.getElementById('reg-step2').classList.remove('active');
-      document.getElementById('reg-step1').classList.add('active');
-      clearMsgs('reg-error', 'reg-success');
-    }
-
-    function showOtpStep(email) {
-      document.getElementById('reg-step1').classList.remove('active');
-      document.getElementById('reg-step2').classList.add('active');
-      document.getElementById('otp-display-email').textContent = email;
-      document.getElementById('otp-sent-email').textContent = email;
-      document.querySelectorAll('.otp-digit').forEach(d => { d.value = ''; d.classList.remove('filled'); });
-      document.querySelector('.otp-digit').focus();
-    }
-
-    // OTP digit auto-advance & paste handling
-    document.querySelectorAll('.otp-digit').forEach((input, idx, arr) => {
-      input.addEventListener('input', () => {
-        input.value = input.value.replace(/\D/g, '').slice(0, 1);
-        input.classList.toggle('filled', !!input.value);
-        if (input.value && idx < arr.length - 1) arr[idx + 1].focus();
-        if (idx === arr.length - 1 && input.value) {
-          const otp = [...arr].map(d => d.value).join('');
-          if (otp.length === 6) doVerifyOtp();
-        }
-      });
-      input.addEventListener('keydown', e => {
-        if (e.key === 'Backspace' && !input.value && idx > 0) {
-          arr[idx - 1].focus();
-          arr[idx - 1].classList.remove('filled');
-        }
-      });
-      input.addEventListener('paste', e => {
-        e.preventDefault();
-        const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
-        pasted.split('').forEach((ch, i) => {
-          if (arr[i]) { arr[i].value = ch; arr[i].classList.add('filled'); }
-        });
-        if (pasted.length === 6) doVerifyOtp();
-        else if (arr[pasted.length]) arr[pasted.length].focus();
-      });
-      input.addEventListener('focus', () => input.select());
-    });
-
-    function getOtpValue() {
-      return [...document.querySelectorAll('.otp-digit')].map(d => d.value).join('');
-    }
-
-    function shakeOtpInputs() {
-      document.querySelectorAll('.otp-digit').forEach(d => {
-        d.classList.add('shake');
-        setTimeout(() => d.classList.remove('shake'), 500);
-      });
-    }
-
-    async function doSendOtp() {
-      clearMsgs('reg-error', 'reg-success');
-      const email = document.getElementById('reg-email').value.trim();
-      const password = document.getElementById('reg-password').value;
-      if (!email || !password) return showError('reg-error', 'Please fill in all fields.');
-      if (password.length < 6) return showError('reg-error', 'Password must be at least 6 characters.');
-
-      const btn = document.getElementById('btn-send-otp');
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span>Sending OTP...';
-
-      try {
-        const res = await fetch(`${API}/uptimerobot/auth/send-otp`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || data.Error || data.Message || 'Failed to send OTP');
-        }
-        pendingEmail = email;
-        pendingPassword = password;
-        showOtpStep(email);
-        showSuccess('reg-success', 'OTP sent! Check your inbox.');
-      } catch (e) {
-        showError('reg-error', e.message);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Send OTP';
-      }
-    }
-
-    async function doVerifyOtp() {
-      clearMsgs('reg-error', 'reg-success');
-      const otp = getOtpValue();
-      if (otp.length !== 6) return showError('reg-error', 'Please enter the full 6-digit OTP.');
-
-      const btn = document.getElementById('btn-verify-otp');
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span>Verifying...';
-
-      try {
-        const res = await fetch(`${API}/uptimerobot/auth/verify-otp`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ email: pendingEmail, otp })
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.Error || data.error || 'Invalid OTP, please try again.');
-        }
-        const data = await res.json();
-        localStorage.setItem('ur_token', data.token);
-        localStorage.setItem('ur_email', pendingEmail);
-        showSuccess('reg-success', 'Account created! Redirecting...');
-        showSuccessOverlay(() => window.location.href = 'dashboard.html');
-      } catch (e) {
-        showError('reg-error', e.message);
-        shakeOtpInputs();
-        document.querySelectorAll('.otp-digit').forEach(d => { d.value = ''; d.classList.remove('filled'); });
-        document.querySelector('.otp-digit').focus();
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Verify & Create Account';
-      }
-    }
-
-    async function doResendOtp() {
-      clearMsgs('reg-error', 'reg-success');
-      const btn = document.getElementById('btn-resend');
-      btn.disabled = true;
-      btn.textContent = 'Sending...';
-
-      try {
-        const res = await fetch(`${API}/uptimerobot/auth/send-otp`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: pendingEmail, password: pendingPassword })
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.Error || data.error || 'Could not resend OTP');
-        }
-        showSuccess('reg-success', 'New OTP sent! Check your inbox.');
-        let cd = 30;
-        btn.textContent = `Resend in ${cd}s`;
-        const timer = setInterval(() => {
-          cd--;
-          btn.textContent = `Resend in ${cd}s`;
-          if (cd <= 0) { clearInterval(timer); btn.disabled = false; btn.textContent = 'Resend OTP'; }
-        }, 1000);
-      } catch (e) {
-        showError('reg-error', e.message);
-        btn.disabled = false;
-        btn.textContent = 'Resend OTP';
-      }
-    }
-
-    /* ===== ENTER KEY ===== */
-    document.addEventListener('keydown', e => {
-      if (e.key !== 'Enter') return;
-      if (document.getElementById('panel-login').classList.contains('active')) {
-        doLogin();
-      } else if (document.getElementById('reg-step2').classList.contains('active')) {
-        doVerifyOtp();
-      } else {
-        doSendOtp();
-      }
-    });
-
-    /* ===== 3D TILT EFFECT ===== */
-    const card = document.getElementById('auth-card');
-    let tiltRAF;
-    card.addEventListener('mousemove', e => {
-      cancelAnimationFrame(tiltRAF);
-      tiltRAF = requestAnimationFrame(() => {
-        const rect = card.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width;
-        const y = (e.clientY - rect.top) / rect.height;
-        const rotX = (0.5 - y) * 6;
-        const rotY = (x - 0.5) * 6;
-        card.style.transform = `perspective(800px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.01)`;
-      });
-    });
-    card.addEventListener('mouseleave', () => {
-      card.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
-      card.style.transform = 'perspective(800px) rotateX(0) rotateY(0) scale(1)';
-    });
-    card.addEventListener('mouseenter', () => {
-      card.style.transition = 'none';
-    });
-
-    /* ===== TYPING INDICATOR ===== */
-    let typingTimers = {};
-    document.querySelectorAll('.form-input').forEach(input => {
-      input.addEventListener('input', () => {
-        input.classList.add('typing');
-        clearTimeout(typingTimers[input.id]);
-        typingTimers[input.id] = setTimeout(() => input.classList.remove('typing'), 600);
-      });
-    });
-
-    /* ===== OAUTH REDIRECT ===== */
-    const urlParams = new URLSearchParams(window.location.search);
-    const oauthToken = urlParams.get('token');
-    const oauthEmail = urlParams.get('email') || '';
-    if (oauthToken) {
-      localStorage.setItem('ur_token', oauthToken);
-      localStorage.setItem('ur_email', oauthEmail);
-      window.history.replaceState({}, '', 'index.html');
-      window.location.href = 'dashboard.html';
-    }
-
-    /* ===== AUTO-LOGIN CHECK ===== */
-    if (!oauthToken && localStorage.getItem('ur_token')) {
-      (async () => {
-        try {
-          const res = await fetch(`${API}/uptimerobot/monitors`, {
-            headers: { 'Authorization': 'Bearer ' + localStorage.getItem('ur_token') }
-          });
-          if (res.ok) {
-            window.location.href = 'dashboard.html';
-          } else {
-            localStorage.removeItem('ur_token');
-            localStorage.removeItem('ur_email');
-          }
-        } catch (e) {
-          localStorage.removeItem('ur_token');
-          localStorage.removeItem('ur_email');
-        }
-      })();
-    }
-  </script>
+    <script src="script.js"></script>
 </body>
 </html>

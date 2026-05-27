@@ -1321,7 +1321,7 @@
     }
 
     if (!localStorage.getItem('ur_token') && !params.has('token')) {
-      window.location.href = 'index.html';
+      window.location.href = 'login.html';
     }
 
     // Set nav email & avatar
@@ -1396,7 +1396,7 @@
     async function forceLogout() {
       localStorage.removeItem('ur_token');
       localStorage.removeItem('ur_email');
-      window.location.href = 'index.html';
+      window.location.href = 'login.html';
     }
 
     // --- Animated Counter ---
@@ -1839,7 +1839,7 @@
       } catch (e) { /* still clear local state */ }
       localStorage.removeItem('ur_token');
       localStorage.removeItem('ur_email');
-      window.location.href = 'index.html';
+      window.location.href = 'login.html';
     }
 
     // --- Toast with stacking & progress ---

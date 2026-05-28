@@ -34,30 +34,49 @@ function useAnimatedCounter(targetValue, duration = 1200) {
 }
 
 // ─── Particle Canvas Component ────────────────────────────────
+// Check if we're on a mobile/touch device
+function isMobileDevice() {
+  return (
+    window.innerWidth < 768 ||
+    ('ontouchstart' in window) ||
+    (navigator.maxTouchPoints > 0)
+  );
+}
+
 function ParticleCanvas() {
   const canvasRef = useRef(null);
   const particlesRef = useRef([]);
   const animFrameRef = useRef(null);
-  const mouseRef = useRef({ x: 0, y: 0 });
+  const mouseRef = useRef({ x: -9999, y: -9999 });
 
   useEffect(() => {
+    // Skip entirely on mobile — too GPU heavy
+    if (isMobileDevice()) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 2); // Cap at 2x
 
     const resize = () => {
-      canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-      canvas.height = canvas.offsetHeight * window.devicePixelRatio;
-      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // Reset then scale — prevents stacking
     };
     resize();
     window.addEventListener('resize', resize);
 
-    // Initialize particles
-    const PARTICLE_COUNT = 80;
+    // Fewer particles on smaller screens
+    const PARTICLE_COUNT = window.innerWidth < 1024 ? 40 : 70;
+    const w = canvas.offsetWidth;
+    const h = canvas.offsetHeight;
     particlesRef.current = Array.from({ length: PARTICLE_COUNT }, () => ({
-      x: Math.random() * canvas.offsetWidth,
-      y: Math.random() * canvas.offsetHeight,
+      x: Math.random() * w,
+      y: Math.random() * h,
       vx: (Math.random() - 0.5) * 0.3,
       vy: -Math.random() * 0.5 - 0.1,
       size: Math.random() * 2 + 0.5,
@@ -73,9 +92,9 @@ function ParticleCanvas() {
     canvas.parentElement?.addEventListener('mousemove', handleMouse);
 
     const animate = () => {
-      const w = canvas.offsetWidth;
-      const h = canvas.offsetHeight;
-      ctx.clearRect(0, 0, w, h);
+      const cw = canvas.offsetWidth;
+      const ch = canvas.offsetHeight;
+      ctx.clearRect(0, 0, cw, ch);
 
       particlesRef.current.forEach((p) => {
         p.x += p.vx;
@@ -84,11 +103,11 @@ function ParticleCanvas() {
 
         // Wrap around
         if (p.y < -10) {
-          p.y = h + 10;
-          p.x = Math.random() * w;
+          p.y = ch + 10;
+          p.x = Math.random() * cw;
         }
-        if (p.x < -10) p.x = w + 10;
-        if (p.x > w + 10) p.x = -10;
+        if (p.x < -10) p.x = cw + 10;
+        if (p.x > cw + 10) p.x = -10;
 
         // Proximity glow near cursor
         const dx = p.x - mouseRef.current.x;
@@ -210,12 +229,14 @@ export default function LandingApp() {
       scrollYRef.current = window.scrollY;
       setIsScrolled(window.scrollY > 50);
 
-      // Parallax orbs
-      const orbs = document.querySelectorAll('.hero-orb');
-      orbs.forEach((orb, i) => {
-        const speed = 0.02 + i * 0.015;
-        orb.style.transform = `translateY(${scrollYRef.current * speed}px)`;
-      });
+      // Parallax orbs — skip on mobile for performance
+      if (!isMobileDevice()) {
+        const orbs = document.querySelectorAll('.hero-orb');
+        orbs.forEach((orb, i) => {
+          const speed = 0.02 + i * 0.015;
+          orb.style.transform = `translateY(${scrollYRef.current * speed}px)`;
+        });
+      }
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
 

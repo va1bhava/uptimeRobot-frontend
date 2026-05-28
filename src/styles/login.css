@@ -249,15 +249,15 @@ body.login-body {
   width: 100%;
   padding: 12px;
   margin-top: 10px;
-  background: var(--text-primary);
-  color: var(--bg);
+  background: linear-gradient(135deg, var(--accent), var(--accent3));
+  color: #ffffff;
   border: none;
   border-radius: 8px;
   font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s var(--ease-spring);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -265,7 +265,7 @@ body.login-body {
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 24px rgba(168, 85, 247, 0.3);
 }
 
 .btn-primary:disabled {

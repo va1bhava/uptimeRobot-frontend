@@ -121,7 +121,11 @@ export default function DashboardApp() {
         // Try token exchange refresh
         const refreshRes = await fetch(`${API}/uptimerobot/auth/refresh`, {
           method: 'POST',
-          credentials: 'include'
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          }
         });
 
         if (refreshRes.ok) {

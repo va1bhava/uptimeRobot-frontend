@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import '../styles/landing.css';
 
 const API_BACKEND = 'https://uptimerobot-xvf5.onrender.com';
 
+// ─── Animated Counter Hook ────────────────────────────────────
 function useAnimatedCounter(targetValue, duration = 1200) {
   const [value, setValue] = useState(0);
 
@@ -16,7 +17,7 @@ function useAnimatedCounter(targetValue, duration = 1200) {
     const step = (timestamp) => {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // cubic ease-out
+      const eased = 1 - Math.pow(1 - progress, 3);
       const current = Math.round(startValue + (targetValue - startValue) * eased);
       setValue(current);
 
@@ -32,13 +33,109 @@ function useAnimatedCounter(targetValue, duration = 1200) {
   return value;
 }
 
+// ─── Particle Canvas Component ────────────────────────────────
+function ParticleCanvas() {
+  const canvasRef = useRef(null);
+  const particlesRef = useRef([]);
+  const animFrameRef = useRef(null);
+  const mouseRef = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+      canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Initialize particles
+    const PARTICLE_COUNT = 80;
+    particlesRef.current = Array.from({ length: PARTICLE_COUNT }, () => ({
+      x: Math.random() * canvas.offsetWidth,
+      y: Math.random() * canvas.offsetHeight,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: -Math.random() * 0.5 - 0.1,
+      size: Math.random() * 2 + 0.5,
+      opacity: Math.random() * 0.5 + 0.1,
+      pulse: Math.random() * Math.PI * 2,
+    }));
+
+    const handleMouse = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseRef.current.x = e.clientX - rect.left;
+      mouseRef.current.y = e.clientY - rect.top;
+    };
+    canvas.parentElement?.addEventListener('mousemove', handleMouse);
+
+    const animate = () => {
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      ctx.clearRect(0, 0, w, h);
+
+      particlesRef.current.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.pulse += 0.02;
+
+        // Wrap around
+        if (p.y < -10) {
+          p.y = h + 10;
+          p.x = Math.random() * w;
+        }
+        if (p.x < -10) p.x = w + 10;
+        if (p.x > w + 10) p.x = -10;
+
+        // Proximity glow near cursor
+        const dx = p.x - mouseRef.current.x;
+        const dy = p.y - mouseRef.current.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const proximityBoost = dist < 150 ? (1 - dist / 150) * 0.6 : 0;
+
+        const pulseOpacity = Math.sin(p.pulse) * 0.15 + 0.15;
+        const finalOpacity = Math.min(p.opacity + proximityBoost + pulseOpacity, 1);
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(168, 130, 247, ${finalOpacity})`;
+        ctx.fill();
+
+        // Glow effect for close particles
+        if (proximityBoost > 0.1) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(168, 85, 247, ${proximityBoost * 0.15})`;
+          ctx.fill();
+        }
+      });
+
+      animFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      canvas.parentElement?.removeEventListener('mousemove', handleMouse);
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="particle-canvas" />;
+}
+
+// ─── Main Landing App ─────────────────────────────────────────
 export default function LandingApp() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+
   // Live stats state
   const [rawStats, setRawStats] = useState({ totalUrls: 0, urlsUp: 0, urlsDown: 0 });
-  
+
   // Animated counters
   const animatedTotal = useAnimatedCounter(rawStats.totalUrls);
   const animatedUp = useAnimatedCounter(rawStats.urlsUp);
@@ -51,6 +148,12 @@ export default function LandingApp() {
     { id: 3, type: 'info', text: '20-thread scheduler pool booted.' }
   ]);
   const terminalBodyRef = useRef(null);
+
+  // Hero ref for mouse tracking
+  const heroRef = useRef(null);
+
+  // Scroll position for parallax
+  const scrollYRef = useRef(0);
 
   // Fetch stats from backend
   const fetchStats = async () => {
@@ -69,6 +172,17 @@ export default function LandingApp() {
       console.warn('Stats fetch failed:', error.message);
     }
   };
+
+  // Mouse tracking for cursor glow
+  const handleHeroMouseMove = useCallback((e) => {
+    const hero = heroRef.current;
+    if (!hero) return;
+    const rect = hero.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    hero.style.setProperty('--mouse-x', `${x}px`);
+    hero.style.setProperty('--mouse-y', `${y}px`);
+  }, []);
 
   useEffect(() => {
     // Check URL params for OAuth redirect or existing token
@@ -91,32 +205,50 @@ export default function LandingApp() {
     fetchStats();
     const statsInterval = setInterval(fetchStats, 60000);
 
+    // Scroll handling — nav + parallax
     const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
+      scrollYRef.current = window.scrollY;
+      setIsScrolled(window.scrollY > 50);
 
+      // Parallax orbs
+      const orbs = document.querySelectorAll('.hero-orb');
+      orbs.forEach((orb, i) => {
+        const speed = 0.02 + i * 0.015;
+        orb.style.transform = `translateY(${scrollYRef.current * speed}px)`;
+      });
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    // Enhanced IntersectionObserver with stagger
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
+            // Find siblings for stagger
+            const parent = entry.target.parentElement;
+            if (parent) {
+              const siblings = Array.from(parent.querySelectorAll('.fade-in'));
+              const idx = siblings.indexOf(entry.target);
+              if (idx >= 0 && idx <= 6) {
+                entry.target.classList.add(`delay-${idx}`);
+              }
+            }
             entry.target.classList.add('visible');
             observer.unobserve(entry.target);
           }
         });
       },
       {
-        threshold: 0.15,
-        rootMargin: '0px 0px -50px 0px',
+        threshold: 0.1,
+        rootMargin: '0px 0px -60px 0px',
       }
     );
 
-    document.querySelectorAll('.fade-in').forEach((el) => {
-      observer.observe(el);
+    // Small delay to let DOM render
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.fade-in').forEach((el) => {
+        observer.observe(el);
+      });
     });
 
     return () => {
@@ -170,6 +302,9 @@ export default function LandingApp() {
 
   return (
     <>
+      {/* Global noise overlay */}
+      <div className="noise-overlay"></div>
+
       {/* Navigation */}
       <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`} id="navbar">
         <div className="nav-container">
@@ -184,9 +319,9 @@ export default function LandingApp() {
             <a href="#api" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>API</a>
             <a href="login.html" className="nav-cta">Console Dashboard</a>
           </div>
-          <button 
-            className={`mobile-toggle ${isMobileMenuOpen ? 'active' : ''}`} 
-            id="mobile-toggle" 
+          <button
+            className={`mobile-toggle ${isMobileMenuOpen ? 'active' : ''}`}
+            id="mobile-toggle"
             aria-label="Toggle menu"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
@@ -198,9 +333,28 @@ export default function LandingApp() {
       </nav>
 
       {/* Hero Section */}
-      <section className="hero" id="hero">
+      <section
+        className="hero"
+        id="hero"
+        ref={heroRef}
+        onMouseMove={handleHeroMouseMove}
+      >
+        {/* Animated gradient orbs */}
+        <div className="hero-orb hero-orb--1"></div>
+        <div className="hero-orb hero-orb--2"></div>
+        <div className="hero-orb hero-orb--3"></div>
+        <div className="hero-orb hero-orb--4"></div>
+        <div className="hero-orb hero-orb--5"></div>
+
+        {/* Cursor-following glow */}
+        <div className="hero-cursor-glow"></div>
+
+        {/* Particle system canvas */}
+        <ParticleCanvas />
+
         <div className="hero-glow"></div>
         <div className="hero-grid-bg"></div>
+
         <div className="hero-content">
           <div className="hero-badge fade-in">
             <span className="pulse-dot"></span>

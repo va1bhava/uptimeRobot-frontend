@@ -1,7 +1,10 @@
 /* ============================================
    DESIGN SYSTEM — UptimeRobot Landing Page
-   Stitch-Inspired Animated Premium Design
+   Cinematic Animated Premium Design
+   Earth Globe + Scroll Zoom + Micro-Animations
    ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
     /* Colors */
@@ -94,7 +97,63 @@ a {
 }
 
 /* ============================================
-   ANIMATED ORB SYSTEM
+   EARTH GLOBE
+   ============================================ */
+.earth-globe-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    will-change: transform;
+}
+
+.earth-canvas {
+    display: block;
+    will-change: transform;
+}
+
+/* Concentric glow rings around the globe */
+.earth-glow-ring {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.earth-glow-ring--1 {
+    width: 130%;
+    height: 130%;
+    top: -15%;
+    left: -15%;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.06) 0%, rgba(168, 85, 247, 0.03) 40%, transparent 70%);
+    animation: glowRingPulse1 6s ease-in-out infinite;
+}
+
+.earth-glow-ring--2 {
+    width: 160%;
+    height: 160%;
+    top: -30%;
+    left: -30%;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.04) 0%, rgba(99, 102, 241, 0.02) 40%, transparent 70%);
+    animation: glowRingPulse2 8s ease-in-out infinite;
+}
+
+@keyframes glowRingPulse1 {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.08); }
+}
+
+@keyframes glowRingPulse2 {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+/* ============================================
+   ANIMATED ORB SYSTEM (Reduced to 3 for perf)
    ============================================ */
 .hero-orb {
     position: absolute;
@@ -102,51 +161,34 @@ a {
     filter: blur(120px);
     pointer-events: none;
     z-index: 0;
+    will-change: transform;
 }
 
 .hero-orb--1 {
-    width: 700px;
-    height: 700px;
-    background: radial-gradient(circle, rgba(124, 58, 237, 0.25) 0%, rgba(124, 58, 237, 0.05) 40%, transparent 70%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.2) 0%, rgba(124, 58, 237, 0.04) 40%, transparent 70%);
     top: -250px;
     left: -200px;
     animation: orbFloat1 20s ease-in-out infinite;
 }
 
 .hero-orb--2 {
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, rgba(6, 182, 212, 0.04) 40%, transparent 70%);
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, rgba(6, 182, 212, 0.03) 40%, transparent 70%);
     top: -100px;
     right: -200px;
     animation: orbFloat2 25s ease-in-out infinite;
 }
 
 .hero-orb--3 {
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(192, 38, 211, 0.18) 0%, rgba(192, 38, 211, 0.03) 40%, transparent 70%);
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(192, 38, 211, 0.12) 0%, rgba(192, 38, 211, 0.02) 40%, transparent 70%);
     bottom: -150px;
     left: 30%;
     animation: orbFloat3 22s ease-in-out infinite;
-}
-
-.hero-orb--4 {
-    width: 550px;
-    height: 550px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.03) 40%, transparent 70%);
-    top: 20%;
-    right: 10%;
-    animation: orbFloat4 18s ease-in-out infinite;
-}
-
-.hero-orb--5 {
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, transparent 70%);
-    bottom: 10%;
-    left: -100px;
-    animation: orbFloat5 28s ease-in-out infinite;
 }
 
 @keyframes orbFloat1 {
@@ -169,19 +211,7 @@ a {
     66% { transform: translate(-40px, 40px) scale(0.85); }
 }
 
-@keyframes orbFloat4 {
-    0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
-    25% { transform: translate(-80px, -40px) scale(1.1) rotate(5deg); }
-    50% { transform: translate(50px, 60px) scale(0.9) rotate(-3deg); }
-    75% { transform: translate(30px, -70px) scale(1.15) rotate(2deg); }
-}
-
-@keyframes orbFloat5 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(100px, -60px) scale(1.2); }
-}
-
-/* Noise overlay for premium grain — hidden on mobile to prevent white flash */
+/* Noise overlay for premium grain — hidden on mobile */
 .noise-overlay {
     position: fixed;
     inset: 0;
@@ -213,17 +243,7 @@ a {
         transparent 70%
     );
     transition: background 0.3s ease;
-}
-
-/* Particle canvas */
-.particle-canvas {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    background: transparent;
-    width: 100%;
-    height: 100%;
+    will-change: background;
 }
 
 /* ============================================
@@ -241,8 +261,9 @@ a {
 }
 
 .navbar.scrolled {
-    background: rgba(3, 7, 18, 0.7);
-    backdrop-filter: var(--glass-blur);
+    background: rgba(3, 7, 18, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border-color);
     padding: 14px 0;
 }
@@ -434,6 +455,7 @@ a {
     background: radial-gradient(ellipse, rgba(168, 85, 247, 0.1) 0%, rgba(6, 182, 212, 0.03) 40%, transparent 70%);
     pointer-events: none;
     animation: heroGlowPulse 8s ease-in-out infinite;
+    will-change: transform, opacity;
 }
 
 @keyframes heroGlowPulse {
@@ -623,6 +645,7 @@ a {
     line-height: 1.5;
     position: relative;
     animation: terminalFloat 6s ease-in-out infinite;
+    will-change: transform;
 }
 
 .terminal-window::before {
@@ -718,7 +741,6 @@ a {
     margin: 80px auto 0;
     padding: 28px 36px;
     background: rgba(17, 24, 39, 0.5);
-    backdrop-filter: var(--glass-blur);
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 16px;
     position: relative;
@@ -727,6 +749,7 @@ a {
     width: 100%;
     overflow: hidden;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    will-change: transform, opacity;
 }
 
 .stats-bar::before {
@@ -776,6 +799,7 @@ a {
     font-weight: 800;
     letter-spacing: -0.03em;
     color: var(--text-primary);
+    transition: text-shadow 0.3s;
 }
 
 .stat-unit {
@@ -816,6 +840,7 @@ a {
 .section-header {
     text-align: center;
     margin-bottom: 72px;
+    will-change: transform, opacity;
 }
 
 .section-tag {
@@ -850,7 +875,7 @@ a {
 }
 
 /* ============================================
-   FEATURES — Animated Gradient Borders
+   FEATURES — Animated Gradient Borders + Hover FX
    ============================================ */
 .features {
     padding: var(--section-padding);
@@ -884,6 +909,7 @@ a {
     border-radius: 14px;
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     overflow: hidden;
+    will-change: transform, opacity;
 }
 
 /* Animated gradient border on hover */
@@ -918,7 +944,7 @@ a {
 }
 
 .feature-card:hover {
-    transform: translateY(-6px);
+    transform: translateY(-8px) scale(1.02) !important;
     border-color: transparent;
     box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.4);
 }
@@ -947,12 +973,12 @@ a {
     margin-bottom: 24px;
     color: var(--accent-purple);
     border: 1px solid rgba(168, 85, 247, 0.1);
-    transition: var(--transition);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .feature-card:hover .feature-icon-wrapper {
-    transform: scale(1.1);
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.15);
+    transform: scale(1.15) rotate(5deg);
+    box-shadow: 0 0 25px rgba(168, 85, 247, 0.2);
 }
 
 .feature-icon-wrapper.cyan {
@@ -962,7 +988,7 @@ a {
 }
 
 .feature-card:hover .feature-icon-wrapper.cyan {
-    box-shadow: 0 0 20px rgba(6, 182, 212, 0.15);
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.2);
 }
 
 .feature-icon-wrapper.green {
@@ -972,7 +998,7 @@ a {
 }
 
 .feature-card:hover .feature-icon-wrapper.green {
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.2);
 }
 
 .feature-title {
@@ -1031,12 +1057,13 @@ a {
     border-radius: 14px;
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
+    will-change: transform, opacity;
 }
 
 .step:hover {
     border-color: rgba(255, 255, 255, 0.1);
-    transform: translateX(8px);
-    box-shadow: -4px 0 20px rgba(168, 85, 247, 0.08);
+    transform: translateX(8px) scale(1.01) !important;
+    box-shadow: -4px 0 30px rgba(168, 85, 247, 0.1);
 }
 
 .step-number {
@@ -1114,10 +1141,11 @@ a {
     height: 36px;
     background: linear-gradient(to bottom, rgba(168, 85, 247, 0.2), rgba(6, 182, 212, 0.1), transparent);
     margin-left: 64px;
+    will-change: transform, opacity;
 }
 
 /* ============================================
-   TECH STACK — Floating Badges
+   TECH STACK — Floating Badges with Levitation
    ============================================ */
 .tech-stack {
     padding: var(--section-padding);
@@ -1142,6 +1170,24 @@ a {
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     overflow: hidden;
+    will-change: transform, opacity;
+    animation: techFloat var(--float-duration, 5s) ease-in-out infinite;
+    animation-delay: var(--float-delay, 0s);
+}
+
+/* Stagger float animations per badge */
+.tech-badge:nth-child(1) { --float-duration: 5s; --float-delay: 0s; }
+.tech-badge:nth-child(2) { --float-duration: 5.5s; --float-delay: 0.3s; }
+.tech-badge:nth-child(3) { --float-duration: 4.8s; --float-delay: 0.6s; }
+.tech-badge:nth-child(4) { --float-duration: 5.2s; --float-delay: 0.9s; }
+.tech-badge:nth-child(5) { --float-duration: 5.4s; --float-delay: 1.2s; }
+.tech-badge:nth-child(6) { --float-duration: 4.6s; --float-delay: 0.5s; }
+.tech-badge:nth-child(7) { --float-duration: 5.1s; --float-delay: 0.8s; }
+.tech-badge:nth-child(8) { --float-duration: 4.9s; --float-delay: 1.1s; }
+
+@keyframes techFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
 }
 
 .tech-badge::before {
@@ -1155,8 +1201,9 @@ a {
 
 .tech-badge:hover {
     border-color: rgba(255, 255, 255, 0.12);
-    transform: translateY(-4px);
+    transform: translateY(-6px) !important;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    animation-play-state: paused;
 }
 
 .tech-badge:hover::before {
@@ -1168,11 +1215,11 @@ a {
     height: 24px;
     color: var(--accent-purple);
     flex-shrink: 0;
-    transition: var(--transition);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .tech-badge:hover .tech-icon-svg {
-    transform: scale(1.15) rotate(5deg);
+    transform: scale(1.2) rotate(8deg);
 }
 
 .tech-icon-svg.green { color: var(--accent-green); }
@@ -1204,6 +1251,7 @@ a {
 .api-preview {
     max-width: 800px;
     margin: 0 auto;
+    will-change: transform, opacity;
 }
 
 .api-window {
@@ -1345,6 +1393,7 @@ a {
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 24px;
     overflow: hidden;
+    will-change: transform, opacity;
 }
 
 .cta-card::before {
@@ -1482,26 +1531,6 @@ a {
     50% { opacity: 0; }
 }
 
-/* Staggered fade-in on scroll */
-.fade-in {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.fade-in.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Stagger delay classes — applied via JS */
-.fade-in.delay-1 { transition-delay: 0.1s; }
-.fade-in.delay-2 { transition-delay: 0.2s; }
-.fade-in.delay-3 { transition-delay: 0.3s; }
-.fade-in.delay-4 { transition-delay: 0.4s; }
-.fade-in.delay-5 { transition-delay: 0.5s; }
-.fade-in.delay-6 { transition-delay: 0.6s; }
-
 /* ============================================
    RESPONSIVE
    ============================================ */
@@ -1529,7 +1558,8 @@ a {
         flex-direction: column;
         padding: 24px 32px;
         background: rgba(3, 7, 18, 0.95);
-        backdrop-filter: var(--glass-blur);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
         border-bottom: 1px solid var(--border-color);
         gap: 16px;
     }
@@ -1612,10 +1642,13 @@ a {
         padding: 0 20px;
     }
 
-    /* Hide heavy orbs on mobile for performance */
-    .hero-orb--3,
-    .hero-orb--4,
-    .hero-orb--5 {
+    /* Simplify Earth globe on mobile */
+    .earth-globe-container {
+        opacity: 0.5;
+    }
+
+    /* Simplify orbs on mobile */
+    .hero-orb--3 {
         display: none;
     }
 
@@ -1632,15 +1665,16 @@ a {
         display: none;
     }
 
-    .particle-canvas {
-        display: none;
-    }
-
     .terminal-window::before {
         display: none;
     }
 
     .terminal-window {
+        animation: none;
+    }
+
+    /* Disable tech float on mobile */
+    .tech-badge {
         animation: none;
     }
 }

@@ -18,6 +18,7 @@ import Footer from '../components/Footer';
 export default function LandingApp() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
     // Check URL params for OAuth redirect or existing token
@@ -29,9 +30,11 @@ export default function LandingApp() {
       localStorage.setItem('ur_token', oauthToken);
       localStorage.setItem('ur_email', oauthEmail);
       window.history.replaceState({}, '', 'index.html');
+      setIsRedirecting(true);
       window.location.href = 'dashboard.html';
       return;
     } else if (localStorage.getItem('ur_token')) {
+      setIsRedirecting(true);
       window.location.href = 'dashboard.html';
       return;
     }
@@ -49,6 +52,8 @@ export default function LandingApp() {
       document.body.className = '';
     };
   }, []);
+
+  if (isRedirecting) return null;
 
   return (
     <>

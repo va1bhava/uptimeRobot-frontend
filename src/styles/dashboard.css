@@ -330,7 +330,7 @@ main {
 
 .btn-add {
   padding: 10px 20px;
-  background: var(--text-primary);
+  background: var(--text);
   color: var(--bg);
   border: none;
   border-radius: 6px;

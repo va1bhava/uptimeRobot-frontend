@@ -344,7 +344,7 @@ body.login-body {
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: var(--text-primary);
+  background: var(--text);
   display: flex;
   align-items: center;
   justify-content: center;

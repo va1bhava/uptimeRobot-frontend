@@ -5,7 +5,8 @@ import StatsBar from './StatsBar';
 import { useScrollZoom } from '../hooks/useScrollZoom';
 
 /**
- * Hero section with Earth globe background, terminal, and stats.
+ * Hero section with full-screen Earth globe, Stitch-style aurora horizon
+ * beams, terminal, and stats.
  */
 export default function HeroSection() {
   const heroRef = useRef(null);
@@ -31,19 +32,32 @@ export default function HeroSection() {
       ref={heroRef}
       onMouseMove={handleHeroMouseMove}
     >
-      {/* Animated gradient orbs */}
-      <div className="hero-orb hero-orb--1"></div>
-      <div className="hero-orb hero-orb--2"></div>
-      <div className="hero-orb hero-orb--3"></div>
-
-      {/* Earth Globe Background */}
+      {/* ─── Full-screen Earth Globe ─── */}
       <EarthGlobe />
 
-      {/* Cursor-following glow */}
-      <div className="hero-cursor-glow"></div>
-      <div className="hero-glow"></div>
+      {/* ─── Stitch-style Aurora Horizon Beams ─── */}
+      <div className="aurora-container">
+        {/* Left beams */}
+        <div className="aurora-beam aurora-beam--l1"></div>
+        <div className="aurora-beam aurora-beam--l2"></div>
+        <div className="aurora-beam aurora-beam--l3"></div>
+        <div className="aurora-beam aurora-beam--l4"></div>
+        {/* Right beams */}
+        <div className="aurora-beam aurora-beam--r1"></div>
+        <div className="aurora-beam aurora-beam--r2"></div>
+        <div className="aurora-beam aurora-beam--r3"></div>
+        <div className="aurora-beam aurora-beam--r4"></div>
+        {/* Center glow */}
+        <div className="aurora-center-glow"></div>
+      </div>
+
+      {/* ─── Grid background ─── */}
       <div className="hero-grid-bg"></div>
 
+      {/* ─── Cursor glow ─── */}
+      <div className="hero-cursor-glow"></div>
+
+      {/* ─── Content ─── */}
       <div className="hero-content">
         <div className="hero-badge" ref={badge.ref} style={badge.style}>
           <span className="pulse-dot"></span>
@@ -68,7 +82,7 @@ export default function HeroSection() {
           </a>
         </div>
 
-        {/* Live Terminal Console Preview */}
+        {/* Live Terminal */}
         <div ref={terminal.ref} style={terminal.style}>
           <TerminalWindow />
         </div>
